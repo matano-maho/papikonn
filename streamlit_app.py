@@ -1,13 +1,27 @@
-import streamlit as st
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
-if 'content' not in st.session_state:
-    st.session_state.content = "初期内容"
+# データ作成（例：2群）
+np.random.seed(0)
+groupA = np.random.normal(loc=5, scale=1, size=30)
+groupB = np.random.normal(loc=6, scale=1, size=30)
 
-if st.button('リセット'):
-    st.session_state.content = ""  # 内容を空に
-    st.experimental_rerun()
+# Mann-Whitney U検定の実施
+u_statistic, p_value = stats.mannwhitneyu(groupA, groupB, alternative='two-sided')
 
-st.write(st.session_state.content)
+# データ整形
+df = pd.DataFrame({
+    'Value': np.concatenate([groupA, groupB]),
+    'Group': ['Group A'] * len(groupA) + ['Group B'] * len(groupB)
+})
 
-# 他のプログラム
-# 必要な処理をここに書く
+# ボックスプロットで可視化
+plt.figure(figsize=(8, 6))
+sns.boxplot(x='Group', y='Value', data=df, palette='pastel')
+plt.title(f'Mann-Whitney U Test (U={u_statistic:.2f}, p={p_value:.3f})')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
